@@ -1,6 +1,4 @@
-import { env } from "@config/env";
 import { AppError, NotFoundError } from "@core/error";
-import { serve } from "@hono/node-server";
 import { requireAdmin } from "@middleware/admin-guard";
 import { apiKeyAuth } from "@middleware/api-key";
 import { publicCache } from "@middleware/cache";
@@ -68,16 +66,4 @@ app.onError((err, c) => {
 	return sendError(c, "Internal Server Error", 500) as unknown as Response;
 });
 
-// Start Server
-const port = env.PORT;
-serve(
-	{
-		fetch: app.fetch,
-		port: port,
-	},
-	(info) => {
-		logger.info(
-			`🚀 Server running in ${env.NODE_ENV} mode on http://localhost:${info.port}`,
-		);
-	},
-);
+export default app;
