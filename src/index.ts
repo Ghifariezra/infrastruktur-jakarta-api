@@ -21,7 +21,8 @@ import { Hono } from "hono";
 import { prettyJSON } from "hono/pretty-json";
 import { secureHeaders } from "hono/secure-headers";
 
-const app = new Hono();
+// const app = new Hono();
+const app = new Hono<{ Bindings: Env }>();
 
 // Global Middlewares (Aman untuk semua endpoint)
 app.use("*", requestLogger);
