@@ -1,0 +1,29 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "Preserve",
+		"moduleResolution": "Bundler", // ← ganti ini
+		"outDir": "./dist",
+		"rootDir": "./",
+		"strict": true,
+		"verbatimModuleSyntax": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"types": ["node"],
+		"jsx": "react-jsx",
+		"jsxImportSource": "hono/jsx",
+		"baseUrl": ".",
+		"paths": {
+			"@config/*": ["lib/config/*"],
+			"@core/*": ["lib/core/*"],
+			"@middleware/*": ["lib/middleware/*"],
+			"@modules/*": ["lib/modules/*"],
+			"@shared/*": ["lib/shared/*"],
+			"@types/*": ["lib/types/*"],
+			"@utils/*": ["lib/utils/*"]
+		}
+	},
+	"include": ["src/**/*", "lib/**/*"],
+	"exclude": ["node_modules", "dist"]
+}
