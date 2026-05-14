@@ -6,4 +6,6 @@ declare interface Env {
     DATABASE_URL: string;
     PORT: string;
     NODE_ENV?: string;
+    RATE_LIMIT_WINDOW_MS: number;
+    RATE_LIMIT_MAX: number;
 }
