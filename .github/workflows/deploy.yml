@@ -12,21 +12,29 @@ jobs:
             - name: Checkout Code
               uses: actions/checkout@v4
 
-            # 1. Install Node.js
+            # 1. Install pnpm menggunakan Official Action (Best Practice)
+            # Kita kunci di versi 9 agar stabil dan tidak terlalu agresif nge-blokir script
+            - name: Install pnpm
+              uses: pnpm/action-setup@v3
+              with:
+                  version: 9
+
+            # 2. Install Node.js dan aktifkan fitur Cache agar build selanjutnya lebih cepat
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: "20"
+                  cache: "pnpm"
 
-            # 2. Install pnpm
-            - name: Install pnpm
-              run: npm install -g pnpm
+            # 3. FIX ERROR: Paksa pnpm untuk mengizinkan instalasi esbuild & workerd
+            - name: Allow Build Scripts
+              run: pnpm config set ignore-scripts false
 
-            # 3. Install dependencies project kamu
+            # 4. Install Dependencies
             - name: Install Dependencies
               run: pnpm install
 
-            # 4. Deploy ke Cloudflare (Wrangler sekarang sudah bisa menemukan pnpm)
+            # 5. Deploy ke Cloudflare
             - name: Deploy to Cloudflare
               uses: cloudflare/wrangler-action@v3
               with:
