@@ -1,8 +1,6 @@
 import { z } from "zod";
 
 export const getFacilitiesQuerySchema = z.object({
-	// Longgarkan max limit di Zod agar Admin bisa tarik banyak data.
-	// Publik tetap akan dipotong jadi 100 di Controller.
 	limit: z.coerce.number().int().min(1).default(50),
 	offset: z.coerce.number().int().min(0).default(0),
 });

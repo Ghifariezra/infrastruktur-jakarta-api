@@ -26,7 +26,6 @@ export class HealthFacilityService extends BaseService {
 	): Promise<HealthInfrastrukturView[]> {
 		return this.execute(
 			async () => {
-				// Menggabungkan View dengan Tabel Fisik untuk mendapatkan kolom 'geom'
 				return await this.sql<HealthInfrastrukturView[]>`
                     SELECT v.* FROM infrastruktur_jakarta.v_infrastruktur v
                     JOIN infrastruktur_jakarta.infrastruktur i ON v.id = i.id

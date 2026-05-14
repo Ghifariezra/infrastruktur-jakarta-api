@@ -19,7 +19,6 @@ export class StatsController extends BaseSingleton {
 		this.statsService = StatsService.getInstance<StatsService>();
 	}
 
-	// GET /stats/summary
 	public getSummary = async (c: Context) => {
 		return this.execute(
 			async () => {
@@ -31,7 +30,6 @@ export class StatsController extends BaseSingleton {
 		);
 	};
 
-	// GET /stats/wilayah?nama_wilayah=
 	public getStatsWilayah = async (c: Context) => {
 		return this.execute(
 			async () => {
@@ -50,7 +48,6 @@ export class StatsController extends BaseSingleton {
 		);
 	};
 
-	// GET /stats/jenis
 	public getStatsJenis = async (c: Context) => {
 		return this.execute(
 			async () => {
@@ -62,7 +59,6 @@ export class StatsController extends BaseSingleton {
 		);
 	};
 
-	// GET /stats/kecamatan?nama_wilayah=&nama_kecamatan=
 	public getStatsKecamatan = async (c: Context) => {
 		return this.execute(
 			async () => {
@@ -85,7 +81,6 @@ export class StatsController extends BaseSingleton {
 		);
 	};
 
-	// GET /stats/density?nama_wilayah=&order=asc|desc
 	public getDensity = async (c: Context) => {
 		return this.execute(
 			async () => {
@@ -104,7 +99,6 @@ export class StatsController extends BaseSingleton {
 		);
 	};
 
-	// GET /stats/blank-spot?jenis=&nama_wilayah=
 	public getBlankSpot = async (c: Context) => {
 		return this.execute(
 			async () => {

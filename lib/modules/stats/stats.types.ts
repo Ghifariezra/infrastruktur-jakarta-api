@@ -24,7 +24,7 @@ export interface StatsPerWilayahRow {
 	persentase_distribusi: number;
 	layanan_dasar: number;
 	layanan_rujukan: number;
-	rasio_dasar_per_rs: number | null; // NULL jika tidak ada RS sama sekali
+	rasio_dasar_per_rs: number | null;
 }
 
 // ── v_stats_per_jenis ─────────────────────────────────────────

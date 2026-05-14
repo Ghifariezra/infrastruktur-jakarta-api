@@ -14,7 +14,6 @@ export class AuthController extends BaseSingleton {
 		this.authService = AuthService.getInstance<AuthService>();
 	}
 
-	// POST /api/v1/auth/keys
 	public generateKey = async (c: Context) => {
 		return this.execute(
 			async () => {
@@ -42,7 +41,6 @@ export class AuthController extends BaseSingleton {
 		);
 	};
 
-	// POST /api/v1/auth/keys/revoke
 	public revokeKey = async (c: Context) => {
 		return this.execute(
 			async () => {

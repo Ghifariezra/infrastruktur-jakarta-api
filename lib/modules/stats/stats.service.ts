@@ -15,7 +15,6 @@ import type {
 } from "./stats.validation";
 
 export class StatsService extends BaseService {
-	// ── GET /stats/summary ────────────────────────────────────────
 	async getSummary(): Promise<SummaryRow> {
 		return this.execute(
 			async () => {
@@ -30,7 +29,6 @@ export class StatsService extends BaseService {
 		);
 	}
 
-	// ── GET /stats/wilayah ────────────────────────────────────────
 	async getStatsPerWilayah(
 		query: StatsWilayahQueryParams,
 	): Promise<StatsPerWilayahRow[]> {
@@ -55,7 +53,6 @@ export class StatsService extends BaseService {
 		);
 	}
 
-	// ── GET /stats/jenis ──────────────────────────────────────────
 	async getStatsPerJenis(): Promise<StatsPerJenisRow[]> {
 		return this.execute(
 			async () => {
@@ -70,7 +67,6 @@ export class StatsService extends BaseService {
 		);
 	}
 
-	// ── GET /stats/kecamatan ──────────────────────────────────────
 	async getStatsPerKecamatan(
 		query: StatsKecamatanQueryParams,
 	): Promise<StatsPerKecamatanRow[]> {
@@ -117,7 +113,6 @@ export class StatsService extends BaseService {
 		);
 	}
 
-	// ── GET /stats/density ────────────────────────────────────────
 	async getDensityScore(
 		query: StatsDensityQueryParams,
 	): Promise<DensityScoreRow[]> {
@@ -125,8 +120,6 @@ export class StatsService extends BaseService {
 			async () => {
 				const { nama_wilayah, order } = query;
 
-				// postgres.js tidak support dynamic ORDER BY via interpolation
-				// sehingga kita branch secara explicit
 				if (nama_wilayah && order === "asc") {
 					return await this.sql<DensityScoreRow[]>`
                         SELECT *
@@ -164,7 +157,6 @@ export class StatsService extends BaseService {
 		);
 	}
 
-	// ── GET /stats/blank-spot ─────────────────────────────────────
 	async getBlankSpot(
 		query: StatsBlankSpotQueryParams,
 	): Promise<BlankSpotRow[]> {

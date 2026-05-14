@@ -19,7 +19,6 @@ export class WilayahController extends BaseSingleton {
 		this.wilayahService = WilayahService.getInstance<WilayahService>();
 	}
 
-	// GET /wilayah
 	public getAll = async (c: Context) => {
 		return this.execute(
 			async () => {
@@ -39,7 +38,6 @@ export class WilayahController extends BaseSingleton {
 		);
 	};
 
-	// GET /wilayah/:id
 	public getById = async (c: Context) => {
 		return this.execute(
 			async () => {
@@ -61,7 +59,6 @@ export class WilayahController extends BaseSingleton {
 		);
 	};
 
-	// GET /wilayah/:id/kecamatan
 	public getKecamatan = async (c: Context) => {
 		return this.execute(
 			async () => {
@@ -87,7 +84,6 @@ export class WilayahController extends BaseSingleton {
 		);
 	};
 
-	// GET /wilayah/:id/kelurahan
 	public getKelurahan = async (c: Context) => {
 		return this.execute(
 			async () => {

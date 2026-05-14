@@ -7,7 +7,6 @@ import type {
 } from "./wilayah.types";
 
 export class WilayahService extends BaseService {
-	// ── GET /wilayah ─────────────────────────────────────────────
 	async getAll(search?: string): Promise<WilayahRow[]> {
 		return this.execute(
 			async () => {
@@ -30,7 +29,6 @@ export class WilayahService extends BaseService {
 		);
 	}
 
-	// ── GET /wilayah/:id ─────────────────────────────────────────
 	async getById(id: string): Promise<WilayahRow> {
 		return this.execute(
 			async () => {
@@ -50,7 +48,6 @@ export class WilayahService extends BaseService {
 		);
 	}
 
-	// ── GET /wilayah/:id/kecamatan ───────────────────────────────
 	async getKecamatanByWilayah(
 		wilayahId: string,
 		search?: string,
@@ -99,8 +96,6 @@ export class WilayahService extends BaseService {
 		);
 	}
 
-	// ── GET /wilayah/:id/kelurahan ───────────────────────────────
-	// Explicit branching — lebih aman dari conditional cast trick di postgres.js
 	async getKelurahanByWilayah(
 		wilayahId: string,
 		kecamatanId?: string,
@@ -117,7 +112,6 @@ export class WilayahService extends BaseService {
 					throw new NotFoundError(`Wilayah with id "${wilayahId}"`);
 				}
 
-				// 4 kombinasi filter: kecamatan + search / kecamatan only / search only / none
 				if (kecamatanId && search) {
 					return await this.sql<KelurahanResponse[]>`
                         SELECT

@@ -3,9 +3,9 @@ import type { ContentfulStatusCode } from "hono/utils/http-status";
 export class AppError extends Error {
 	constructor(
 		public readonly message: string,
-		public readonly statusCode: ContentfulStatusCode, // <-- Ubah dari number
+		public readonly statusCode: ContentfulStatusCode,
 		public readonly code: string,
-		public readonly details?: unknown, // <-- Tambahkan details
+		public readonly details?: unknown, 
 	) {
 		super(message);
 		this.name = this.constructor.name;

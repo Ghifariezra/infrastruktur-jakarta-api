@@ -1,0 +1,13 @@
+name = "infrastruktur-jakarta-api"
+main = "src/index.ts"
+compatibility_date = "2026-05-14"
+compatibility_flags = [ "nodejs_compat" ]
+minify = true
+workers_dev = false
+
+[[routes]]
+pattern = "infrastruktur-jakarta-api.ezdev.xyz"
+custom_domain = true
+
+[observability]
+enabled = true
