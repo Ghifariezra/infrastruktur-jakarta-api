@@ -1,7 +1,7 @@
 name = "infrastruktur-jakarta-api"
 main = "src/index.ts"
 compatibility_date = "2026-05-14"
-compatibility_flags = [ "nodejs_compat" ]
+compatibility_flags = [ "nodejs_compat", "nodejs_compat_populate_process_env" ]
 minify = true
 workers_dev = false
 
@@ -11,3 +11,8 @@ custom_domain = true
 
 [observability]
 enabled = true
+
+[vars]
+SUPABASE_URL = "https://dummy.supabase.co"
+DATABASE_URL = "postgres://dummy:dummy@dummy:1234/dummy"
+PORT = "3000"
