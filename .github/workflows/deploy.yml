@@ -3,13 +3,31 @@ on:
     push:
         branches:
             - main
+
 jobs:
     deploy:
         runs-on: ubuntu-latest
         name: Deploy
         steps:
-            - uses: actions/checkout@v4
-            - name: Deploy
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            # 1. Install Node.js
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            # 2. Install pnpm
+            - name: Install pnpm
+              run: npm install -g pnpm
+
+            # 3. Install dependencies project kamu
+            - name: Install Dependencies
+              run: pnpm install
+
+            # 4. Deploy ke Cloudflare (Wrangler sekarang sudah bisa menemukan pnpm)
+            - name: Deploy to Cloudflare
               uses: cloudflare/wrangler-action@v3
               with:
                   apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
