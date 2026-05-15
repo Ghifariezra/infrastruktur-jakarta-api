@@ -24,9 +24,9 @@ export abstract class BaseService extends BaseSingleton {
 	protected supabase!: SupabaseClient;
 	protected readonly logger = logger;
 
-	// Panggil init(env) di awal setiap handler sebelum pakai sql/supabase
-	async init(env: Env): Promise<void> {
-		this.sql = await getSql(env);
+	// Fix: init sync karena getSql sudah tidak async
+	init(env: Env): void {
+		this.sql = getSql(env);
 		this.supabase = getSupabase(env);
 	}
 }

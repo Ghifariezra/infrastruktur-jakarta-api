@@ -22,7 +22,10 @@ export abstract class BaseController extends BaseSingleton {
 				if (!env) throw new Error("Env bindings tidak tersedia di context");
 
 				// Auto-init semua service dengan env dari context
-				await Promise.all(this.services.map((s) => s.init(c.var.env ?? c.env)));
+				// await Promise.all(this.services.map((s) => s.init(c.var.env ?? c.env)));
+				for (const s of this.services) {
+					s.init(env);
+				}
 				return await fn();
 			},
 			errorMessage,

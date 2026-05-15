@@ -39,10 +39,10 @@ import { rateLimiter } from "hono-rate-limiter";
 
 // Fix: hono-rate-limiter punya generic Env-nya sendiri yang berbeda dari Hono<{ Bindings: Env }>.
 // Cast c ke 'any' saat diteruskan ke rateLimiter untuk menghindari type conflict.
-export const rateLimitMiddleware: MiddlewareHandler<{ Bindings: Env; Variables: HonoVariables }> = (
-	c,
-	next,
-) => {
+export const rateLimitMiddleware: MiddlewareHandler<{
+	Bindings: Env;
+	Variables: HonoVariables;
+}> = (c, next) => {
 	return rateLimiter({
 		windowMs: Number(c.env.RATE_LIMIT_WINDOW_MS),
 		limit: Number(c.env.RATE_LIMIT_MAX),

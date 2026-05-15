@@ -24,12 +24,14 @@
 // 	await next();
 // };
 
-
 import { UnauthorizedError } from "@core/error";
 import { AuthService } from "@modules/auth/auth.service";
 import type { MiddlewareHandler } from "hono";
 
-export const apiKeyAuth: MiddlewareHandler<{ Bindings: Env; Variables: HonoVariables }> = async (c, next) => {
+export const apiKeyAuth: MiddlewareHandler<{
+	Bindings: Env;
+	Variables: HonoVariables;
+}> = async (c, next) => {
 	let apiKey = c.req.header("x-api-key");
 
 	if (!apiKey) {
@@ -47,7 +49,7 @@ export const apiKeyAuth: MiddlewareHandler<{ Bindings: Env; Variables: HonoVaria
 
 	const authService = AuthService.getInstance<AuthService>();
 	// Fix: init service dengan env dari context sebelum pakai this.sql
-	await authService.init(c.env);
+	authService.init(c.env);
 	const developerInfo = await authService.verifyApiKey(apiKey);
 	c.set("developer", developerInfo);
 	await next();

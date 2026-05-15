@@ -29,8 +29,9 @@
 
 // import { env } from "@config/env";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-// Fix: import Sql type dari postgres langsung, bukan pakai ReturnType<typeof import().default>
-import type { Sql } from "postgres";
+// Fix: static import — dynamic import (await import()) dihitung sebagai subrequest
+// di Cloudflare Workers dan menyebabkan "Too many subrequests" error
+import postgres, { type Sql } from "postgres";
 
 // ── Lazy instances (di-init saat pertama kali dipakai) ───────
 // Cloudflare Workers: `env` hanya tersedia di dalam handler,
@@ -53,9 +54,9 @@ export function getSupabase(env: Env): SupabaseClient {
 // ── postgres.js — Raw SQL + PostGIS ─────────────────────────
 // prepare: false → wajib untuk Supabase Transaction Pooler (port 6543)
 // ssl: "require" → wajib untuk semua koneksi Supabase
-export async function getSql(env: Env): Promise<Sql> {
+// Fix: tidak lagi async — static import tidak butuh await
+export function getSql(env: Env): Sql {
 	if (!_sql) {
-		const postgres = (await import("postgres")).default;
 		_sql = postgres(env.DATABASE_URL, {
 			ssl: "require",
 			prepare: false,
