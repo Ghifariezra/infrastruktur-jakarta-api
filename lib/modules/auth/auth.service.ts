@@ -13,7 +13,7 @@ export class AuthService extends BaseService {
 				const { data, error } = await this.supabase
 					.schema("infrastruktur_jakarta")
 					.rpc("create_api_key", {
-						p_developer_name: payload.developer_name,
+						p_dev_name: payload.developer_name,
 						p_project_name: payload.project_name,
 						p_tier: payload.tier ?? "free",
 						p_lifespan_days: payload.lifespan_days ?? null,
@@ -32,7 +32,7 @@ export class AuthService extends BaseService {
 			async () => {
 				const { data, error } = await this.supabase
 					.schema("infrastruktur_jakarta")
-					.rpc("verify_api_key", { p_api_key: apiKey });
+					.rpc("verify_api_key", { p_key: apiKey });
 
 				if (error) throw error;
 

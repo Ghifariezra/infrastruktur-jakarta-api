@@ -65,7 +65,12 @@ export class HealthFacilityService extends BaseService {
 			async () => {
 				const { data, error } = await this.supabase.schema("infrastruktur_jakarta").rpc(
 					"get_facilities_bbox",
-					{ p_min_lat: minLat, p_min_lon: minLon, p_max_lat: maxLat, p_max_lon: maxLon },
+					{ 
+						p_min_lat: minLat, 
+						p_min_lon: minLon, 
+						p_max_lat: maxLat, 
+						p_max_lon: maxLon
+					 },
 				);
 
 				if (error) throw error;
