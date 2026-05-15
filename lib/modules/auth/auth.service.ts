@@ -10,12 +10,14 @@ export class AuthService extends BaseService {
 	async createApiKey(payload: CreateApiKeyRequest): Promise<ApiKeyResponse> {
 		return this.execute(
 			async () => {
-				const { data, error } = await this.supabase.rpc("create_api_key", {
-					p_developer_name: payload.developer_name,
-					p_project_name: payload.project_name,
-					p_tier: payload.tier ?? "free",
-					p_lifespan_days: payload.lifespan_days ?? null,
-				});
+				const { data, error } = await this.supabase
+					.schema("infrastruktur_jakarta")
+					.rpc("create_api_key", {
+						p_developer_name: payload.developer_name,
+						p_project_name: payload.project_name,
+						p_tier: payload.tier ?? "free",
+						p_lifespan_days: payload.lifespan_days ?? null,
+					});
 
 				if (error) throw error;
 				return data[0] as ApiKeyResponse;
@@ -28,9 +30,9 @@ export class AuthService extends BaseService {
 	async verifyApiKey(apiKey: string): Promise<VerifyKeyResponse> {
 		return this.execute(
 			async () => {
-				const { data, error } = await this.supabase.rpc("verify_api_key", {
-					p_api_key: apiKey,
-				});
+				const { data, error } = await this.supabase
+					.schema("infrastruktur_jakarta")
+					.rpc("verify_api_key", { p_api_key: apiKey });
 
 				if (error) throw error;
 
@@ -48,9 +50,10 @@ export class AuthService extends BaseService {
 	async revokeApiKey(keyId: string): Promise<void> {
 		return this.execute(
 			async () => {
-				const { error } = await this.supabase.rpc("revoke_api_key", {
-					p_key_id: keyId,
-				});
+				const { error } = await this.supabase
+					.schema("infrastruktur_jakarta")
+					.rpc("revoke_api_key", { p_key_id: keyId });
+
 				if (error) throw error;
 			},
 			"Failed to revoke API Key",

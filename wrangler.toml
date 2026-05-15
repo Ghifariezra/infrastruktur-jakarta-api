@@ -16,6 +16,5 @@ enabled = true
 PORT = "3000"
 SUPABASE_URL = "https://dummy.supabase.co"
 SUPABASE_SERVICE_KEY="your-supabase-service-key"
-DATABASE_URL = "postgres://dummy:dummy@dummy:1234/dummy"
 RATE_LIMIT_WINDOW_MS = "60000"
 RATE_LIMIT_MAX = "100"

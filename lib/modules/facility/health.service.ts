@@ -34,7 +34,7 @@ export class HealthFacilityService extends BaseService {
 	async getFacilitiesNearby(lat: number, lon: number, radiusKm: number): Promise<HealthInfrastrukturView[]> {
 		return this.execute(
 			async () => {
-				const { data, error } = await this.supabase.rpc(
+				const { data, error } = await this.supabase.schema("infrastruktur_jakarta").rpc(
 					"get_facilities_nearby",
 					{ p_lat: lat, p_lon: lon, p_radius_m: radiusKm * 1000 },
 				);
@@ -63,7 +63,7 @@ export class HealthFacilityService extends BaseService {
 	): Promise<HealthInfrastrukturView[]> {
 		return this.execute(
 			async () => {
-				const { data, error } = await this.supabase.rpc(
+				const { data, error } = await this.supabase.schema("infrastruktur_jakarta").rpc(
 					"get_facilities_bbox",
 					{ p_min_lat: minLat, p_min_lon: minLon, p_max_lat: maxLat, p_max_lon: maxLon },
 				);
