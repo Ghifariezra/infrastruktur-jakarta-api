@@ -6,8 +6,8 @@ declare interface Env {
 	DATABASE_URL: string;
 	PORT: string;
 	NODE_ENV?: string;
-	RATE_LIMIT_WINDOW_MS: number;
-	RATE_LIMIT_MAX: number;
+	RATE_LIMIT_WINDOW_MS: string;
+	RATE_LIMIT_MAX: string;
 }
 
 // Hono context variables
