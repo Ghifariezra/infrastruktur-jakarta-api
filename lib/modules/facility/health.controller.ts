@@ -1,6 +1,5 @@
 import { BaseController } from "@core/base.controller";
 import { ValidationError } from "@core/error";
-// import { BaseSingleton } from "@core/singleton";
 import { HealthFacilityService } from "@modules/facility/health.service";
 import {
 	getBBoxFacilitiesSchema,
@@ -11,14 +10,6 @@ import { sendSuccess } from "@shared/response";
 import type { Context } from "hono";
 
 export class HealthFacilityController extends BaseController {
-	// private facilityService: HealthFacilityService;
-
-	// protected constructor() {
-	// 	super();
-	// 	this.facilityService =
-	// 		HealthFacilityService.getInstance<HealthFacilityService>();
-	// }
-
 	private facilityService =
 		HealthFacilityService.getInstance<HealthFacilityService>();
 

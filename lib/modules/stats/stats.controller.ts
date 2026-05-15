@@ -11,13 +11,6 @@ import {
 } from "./stats.validation";
 
 export class StatsController extends BaseController {
-	// private statsService: StatsService;
-
-	// protected constructor() {
-	// 	super();
-	// 	this.statsService = StatsService.getInstance<StatsService>();
-	// }
-
 	private statsService = StatsService.getInstance<StatsService>();
 
 	// Daftarkan semua service — BaseController akan auto-init sebelum handler

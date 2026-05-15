@@ -7,13 +7,6 @@ import { AuthService } from "./auth.service";
 import { createApiKeySchema, revokeApiKeySchema } from "./auth.validation";
 
 export class AuthController extends BaseController {
-	// private authService: AuthService;
-
-	// protected constructor() {
-	// 	super();
-	// 	this.authService = AuthService.getInstance<AuthService>();
-	// }
-
 	private authService = AuthService.getInstance<AuthService>();
 
 	protected get services() {

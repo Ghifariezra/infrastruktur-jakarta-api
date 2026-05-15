@@ -87,6 +87,22 @@ export interface InfrastrukturView {
 	updated_at: string;
 }
 
+export interface KecamatanRaw {
+	id: string;
+	wilayah_id: string;
+	nama_kecamatan: string;
+	wilayah: Pick<WilayahRow, "nama_wilayah">[];
+}
+
+export interface KelurahanRaw {
+	id: string;
+	kecamatan_id: string;
+	nama_kelurahan: string;
+	kecamatan: (Pick<KecamatanRow, "nama_kecamatan"> & {
+		wilayah: Pick<WilayahRow, "nama_wilayah">[];
+	})[];
+}
+
 export interface InfrastrukturNearbyView extends InfrastrukturView {
 	distance_km: number;
 }

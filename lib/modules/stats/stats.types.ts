@@ -1,11 +1,3 @@
-// ============================================================
-//  stats.types.ts
-//  Based on views: v_summary, v_stats_per_wilayah,
-//  v_stats_per_jenis, v_stats_per_kecamatan,
-//  v_density_score, v_blank_spot
-// ============================================================
-
-// ── v_summary ─────────────────────────────────────────────────
 export interface SummaryRow {
 	total_fasilitas: number;
 	total_wilayah: number;
@@ -16,7 +8,6 @@ export interface SummaryRow {
 	periode_akhir: number;
 }
 
-// ── v_stats_per_wilayah ───────────────────────────────────────
 export interface StatsPerWilayahRow {
 	wilayah_id: string;
 	nama_wilayah: string;
@@ -27,7 +18,6 @@ export interface StatsPerWilayahRow {
 	rasio_dasar_per_rs: number | null;
 }
 
-// ── v_stats_per_jenis ─────────────────────────────────────────
 export interface StatsPerJenisRow {
 	jenis_sarana_id: string;
 	jenis_sarana_kesehatan: string;
@@ -35,7 +25,6 @@ export interface StatsPerJenisRow {
 	persentase: number;
 }
 
-// ── v_stats_per_kecamatan ─────────────────────────────────────
 export interface StatsPerKecamatanRow {
 	nama_wilayah: string;
 	kecamatan_id: string;
@@ -46,7 +35,6 @@ export interface StatsPerKecamatanRow {
 	pct_kelurahan_terlayani: number;
 }
 
-// ── v_density_score ───────────────────────────────────────────
 export interface DensityScoreRow {
 	nama_wilayah: string;
 	nama_kecamatan: string;
@@ -55,7 +43,6 @@ export interface DensityScoreRow {
 	faskes_per_kelurahan: number;
 }
 
-// ── v_blank_spot ─────────────────────────────────────────────
 export interface BlankSpotRow {
 	nama_wilayah: string;
 	nama_kecamatan: string;

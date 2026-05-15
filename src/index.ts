@@ -74,18 +74,4 @@ app.onError((err, c) => {
 	return sendError(c, "Internal Server Error", 500) as unknown as Response;
 });
 
-// // Start Server
-// const port = env.PORT;
-// serve(
-// 	{
-// 		fetch: app.fetch,
-// 		port: port,
-// 	},
-// 	(info) => {
-// 		logger.info(
-// 			`🚀 Server running in ${env.NODE_ENV} mode on http://localhost:${info.port}`,
-// 		);
-// 	},
-// );
-
 export default app;

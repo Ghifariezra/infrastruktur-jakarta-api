@@ -11,7 +11,6 @@ export const getNearbyFacilitiesQuerySchema = z.object({
 	radius: z.coerce.number().positive().max(100).default(5),
 });
 
-// health.validation.ts — tambahkan schema ini
 export const getBBoxFacilitiesSchema = z
 	.object({
 		min_lat: z.coerce.number().min(-90).max(90),

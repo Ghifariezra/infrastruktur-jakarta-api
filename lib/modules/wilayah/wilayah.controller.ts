@@ -1,6 +1,5 @@
 import { BaseController } from "@core/base.controller";
 import { ValidationError } from "@core/error";
-// import { BaseSingleton } from "@core/singleton";
 import { sendSuccess } from "@shared/response";
 import type { Context } from "hono";
 import { WilayahService } from "./wilayah.service";
@@ -12,16 +11,8 @@ import {
 } from "./wilayah.validation";
 
 export class WilayahController extends BaseController {
-	// private wilayahService: WilayahService;
-
-	// protected constructor() {
-	// 	super();
-	// 	this.wilayahService = WilayahService.getInstance<WilayahService>();
-	// }
-
 	private wilayahService = WilayahService.getInstance<WilayahService>();
 
-	// Daftarkan semua service — BaseController akan auto-init sebelum handler
 	protected get services() {
 		return [this.wilayahService];
 	}

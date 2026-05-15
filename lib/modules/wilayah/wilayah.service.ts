@@ -1,7 +1,9 @@
 import { BaseService } from "@core/base.service";
 import { NotFoundError } from "@core/error";
 import type {
+    KecamatanRaw,
     KecamatanResponse,
+    KelurahanRaw,
     KelurahanResponse,
     WilayahRow,
 } from "./wilayah.types";
@@ -79,13 +81,12 @@ export class WilayahService extends BaseService {
                 const { data, error } = await query;
                 if (error) throw error;
 
-                // Flatten nested wilayah object
-                return (data as any[]).map((row) => ({
+                return (data as KecamatanRaw[]).map((row) => ({
                     id: row.id,
                     wilayah_id: row.wilayah_id,
-                    nama_wilayah: row.wilayah?.nama_wilayah,
+                    nama_wilayah: row.wilayah[0]?.nama_wilayah ?? "",
                     nama_kecamatan: row.nama_kecamatan,
-                })) as KecamatanResponse[];
+                })) satisfies KecamatanResponse[];
             },
             "Failed to fetch kecamatan",
             "DB_KECAMATAN_ERROR",
@@ -138,19 +139,15 @@ export class WilayahService extends BaseService {
                 const { data, error } = await query;
                 if (error) throw error;
 
-                // Filter by wilayah_id di aplikasi karena Supabase JS tidak support
-                // deep nested WHERE secara langsung
-                const filtered = (data as any[]).filter(
-                    (row) => row.kecamatan?.wilayah /* wilayah_id match sudah lewat kecamatan */,
-                );
-
-                return filtered.map((row) => ({
-                    id: row.id,
-                    kecamatan_id: row.kecamatan_id,
-                    nama_kecamatan: row.kecamatan?.nama_kecamatan,
-                    nama_wilayah: row.kecamatan?.wilayah?.nama_wilayah,
-                    nama_kelurahan: row.nama_kelurahan,
-                })) as KelurahanResponse[];
+                return (data as KelurahanRaw[])
+                    .filter((row) => row.kecamatan[0]?.wilayah[0] != null)
+                    .map((row) => ({
+                        id: row.id,
+                        kecamatan_id: row.kecamatan_id,
+                        nama_kecamatan: row.kecamatan[0]?.nama_kecamatan ?? "",
+                        nama_wilayah: row.kecamatan[0]?.wilayah[0]?.nama_wilayah ?? "",
+                        nama_kelurahan: row.nama_kelurahan,
+                    })) satisfies KelurahanResponse[];
             },
             "Failed to fetch kelurahan",
             "DB_KELURAHAN_ERROR",
