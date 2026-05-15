@@ -18,35 +18,36 @@ export class StatsService extends BaseService {
 	async getSummary(): Promise<SummaryRow> {
 		return this.execute(
 			async () => {
-				const rows = await this.sql<SummaryRow[]>`
-                    SELECT * FROM infrastruktur_jakarta.v_summary
-                    LIMIT 1
-                `;
-				return rows[0];
+				const { data, error } = await this.supabase
+					.schema("infrastruktur_jakarta")
+					.from("v_summary")
+					.select("*")
+					.single();
+
+				if (error) throw error;
+				return data as SummaryRow;
 			},
 			"Failed to fetch summary stats",
 			"DB_STATS_SUMMARY_ERROR",
 		);
 	}
 
-	async getStatsPerWilayah(
-		query: StatsWilayahQueryParams,
-	): Promise<StatsPerWilayahRow[]> {
+	async getStatsPerWilayah(query: StatsWilayahQueryParams): Promise<StatsPerWilayahRow[]> {
 		return this.execute(
 			async () => {
+				let q = this.supabase
+					.schema("infrastruktur_jakarta")
+					.from("v_stats_per_wilayah")
+					.select("*")
+					.order("total_fasilitas", { ascending: false });
+
 				if (query.nama_wilayah) {
-					return await this.sql<StatsPerWilayahRow[]>`
-                        SELECT *
-                        FROM infrastruktur_jakarta.v_stats_per_wilayah
-                        WHERE nama_wilayah ILIKE ${`%${query.nama_wilayah}%`}
-                        ORDER BY total_fasilitas DESC
-                    `;
+					q = q.ilike("nama_wilayah", `%${query.nama_wilayah}%`);
 				}
-				return await this.sql<StatsPerWilayahRow[]>`
-                    SELECT *
-                    FROM infrastruktur_jakarta.v_stats_per_wilayah
-                    ORDER BY total_fasilitas DESC
-                `;
+
+				const { data, error } = await q;
+				if (error) throw error;
+				return data as StatsPerWilayahRow[];
 			},
 			"Failed to fetch stats per wilayah",
 			"DB_STATS_WILAYAH_ERROR",
@@ -56,151 +57,85 @@ export class StatsService extends BaseService {
 	async getStatsPerJenis(): Promise<StatsPerJenisRow[]> {
 		return this.execute(
 			async () => {
-				return await this.sql<StatsPerJenisRow[]>`
-                    SELECT *
-                    FROM infrastruktur_jakarta.v_stats_per_jenis
-                    ORDER BY jumlah DESC
-                `;
+				const { data, error } = await this.supabase
+					.schema("infrastruktur_jakarta")
+					.from("v_stats_per_jenis")
+					.select("*")
+					.order("jumlah", { ascending: false });
+
+				if (error) throw error;
+				return data as StatsPerJenisRow[];
 			},
 			"Failed to fetch stats per jenis",
 			"DB_STATS_JENIS_ERROR",
 		);
 	}
 
-	async getStatsPerKecamatan(
-		query: StatsKecamatanQueryParams,
-	): Promise<StatsPerKecamatanRow[]> {
+	async getStatsPerKecamatan(query: StatsKecamatanQueryParams): Promise<StatsPerKecamatanRow[]> {
 		return this.execute(
 			async () => {
 				const { nama_wilayah, nama_kecamatan } = query;
 
-				if (nama_wilayah && nama_kecamatan) {
-					return await this.sql<StatsPerKecamatanRow[]>`
-                        SELECT *
-                        FROM infrastruktur_jakarta.v_stats_per_kecamatan
-                        WHERE nama_wilayah   ILIKE ${`%${nama_wilayah}%`}
-                          AND nama_kecamatan ILIKE ${`%${nama_kecamatan}%`}
-                        ORDER BY nama_wilayah ASC, total_fasilitas DESC
-                    `;
-				}
+				let q = this.supabase
+					.schema("infrastruktur_jakarta")
+					.from("v_stats_per_kecamatan")
+					.select("*")
+					.order("nama_wilayah", { ascending: true });
 
-				if (nama_wilayah) {
-					return await this.sql<StatsPerKecamatanRow[]>`
-                        SELECT *
-                        FROM infrastruktur_jakarta.v_stats_per_kecamatan
-                        WHERE nama_wilayah ILIKE ${`%${nama_wilayah}%`}
-                        ORDER BY total_fasilitas DESC
-                    `;
-				}
+				if (nama_wilayah) q = q.ilike("nama_wilayah", `%${nama_wilayah}%`);
+				if (nama_kecamatan) q = q.ilike("nama_kecamatan", `%${nama_kecamatan}%`);
 
-				if (nama_kecamatan) {
-					return await this.sql<StatsPerKecamatanRow[]>`
-                        SELECT *
-                        FROM infrastruktur_jakarta.v_stats_per_kecamatan
-                        WHERE nama_kecamatan ILIKE ${`%${nama_kecamatan}%`}
-                        ORDER BY nama_wilayah ASC, total_fasilitas DESC
-                    `;
-				}
-
-				return await this.sql<StatsPerKecamatanRow[]>`
-                    SELECT *
-                    FROM infrastruktur_jakarta.v_stats_per_kecamatan
-                    ORDER BY nama_wilayah ASC, total_fasilitas DESC
-                `;
+				const { data, error } = await q;
+				if (error) throw error;
+				return data as StatsPerKecamatanRow[];
 			},
 			"Failed to fetch stats per kecamatan",
 			"DB_STATS_KECAMATAN_ERROR",
 		);
 	}
 
-	async getDensityScore(
-		query: StatsDensityQueryParams,
-	): Promise<DensityScoreRow[]> {
+	async getDensityScore(query: StatsDensityQueryParams): Promise<DensityScoreRow[]> {
 		return this.execute(
 			async () => {
 				const { nama_wilayah, order } = query;
 
-				if (nama_wilayah && order === "asc") {
-					return await this.sql<DensityScoreRow[]>`
-                        SELECT *
-                        FROM infrastruktur_jakarta.v_density_score
-                        WHERE nama_wilayah ILIKE ${`%${nama_wilayah}%`}
-                        ORDER BY faskes_per_kelurahan ASC
-                    `;
-				}
+				let q = this.supabase
+					.schema("infrastruktur_jakarta")
+					.from("v_density_score")
+					.select("*")
+					.order("faskes_per_kelurahan", { ascending: order === "asc" });
 
-				if (nama_wilayah) {
-					return await this.sql<DensityScoreRow[]>`
-                        SELECT *
-                        FROM infrastruktur_jakarta.v_density_score
-                        WHERE nama_wilayah ILIKE ${`%${nama_wilayah}%`}
-                        ORDER BY faskes_per_kelurahan DESC
-                    `;
-				}
+				if (nama_wilayah) q = q.ilike("nama_wilayah", `%${nama_wilayah}%`);
 
-				if (order === "asc") {
-					return await this.sql<DensityScoreRow[]>`
-                        SELECT *
-                        FROM infrastruktur_jakarta.v_density_score
-                        ORDER BY faskes_per_kelurahan ASC
-                    `;
-				}
-
-				return await this.sql<DensityScoreRow[]>`
-                    SELECT *
-                    FROM infrastruktur_jakarta.v_density_score
-                    ORDER BY faskes_per_kelurahan DESC
-                `;
+				const { data, error } = await q;
+				if (error) throw error;
+				return data as DensityScoreRow[];
 			},
 			"Failed to fetch density score",
 			"DB_STATS_DENSITY_ERROR",
 		);
 	}
 
-	async getBlankSpot(
-		query: StatsBlankSpotQueryParams,
-	): Promise<BlankSpotRow[]> {
+	async getBlankSpot(query: StatsBlankSpotQueryParams): Promise<BlankSpotRow[]> {
 		return this.execute(
 			async () => {
 				const { jenis, nama_wilayah, limit, offset } = query;
 
-				if (jenis && nama_wilayah) {
-					return await this.sql<BlankSpotRow[]>`
-                        SELECT *
-                        FROM infrastruktur_jakarta.v_blank_spot
-                        WHERE jenis_sarana_kesehatan ILIKE ${`%${jenis}%`}
-                          AND nama_wilayah           ILIKE ${`%${nama_wilayah}%`}
-                        ORDER BY nama_wilayah, nama_kecamatan, nama_kelurahan
-                        LIMIT ${limit} OFFSET ${offset}
-                    `;
-				}
+				let q = this.supabase
+					.schema("infrastruktur_jakarta")
+					.from("v_blank_spot")
+					.select("*")
+					.order("nama_wilayah", { ascending: true })
+					.order("nama_kecamatan", { ascending: true })
+					.order("nama_kelurahan", { ascending: true })
+					.range(offset, offset + limit - 1);
 
-				if (jenis) {
-					return await this.sql<BlankSpotRow[]>`
-                        SELECT *
-                        FROM infrastruktur_jakarta.v_blank_spot
-                        WHERE jenis_sarana_kesehatan ILIKE ${`%${jenis}%`}
-                        ORDER BY nama_wilayah, nama_kecamatan, nama_kelurahan
-                        LIMIT ${limit} OFFSET ${offset}
-                    `;
-				}
+				if (jenis) q = q.ilike("jenis_sarana_kesehatan", `%${jenis}%`);
+				if (nama_wilayah) q = q.ilike("nama_wilayah", `%${nama_wilayah}%`);
 
-				if (nama_wilayah) {
-					return await this.sql<BlankSpotRow[]>`
-                        SELECT *
-                        FROM infrastruktur_jakarta.v_blank_spot
-                        WHERE nama_wilayah ILIKE ${`%${nama_wilayah}%`}
-                        ORDER BY nama_wilayah, nama_kecamatan, nama_kelurahan
-                        LIMIT ${limit} OFFSET ${offset}
-                    `;
-				}
-
-				return await this.sql<BlankSpotRow[]>`
-                    SELECT *
-                    FROM infrastruktur_jakarta.v_blank_spot
-                    ORDER BY nama_wilayah, nama_kecamatan, nama_kelurahan
-                    LIMIT ${limit} OFFSET ${offset}
-                `;
+				const { data, error } = await q;
+				if (error) throw error;
+				return data as BlankSpotRow[];
 			},
 			"Failed to fetch blank spot data",
 			"DB_STATS_BLANKSPOT_ERROR",

@@ -1,185 +1,159 @@
 import { BaseService } from "@core/base.service";
 import { NotFoundError } from "@core/error";
 import type {
-	KecamatanResponse,
-	KelurahanResponse,
-	WilayahRow,
+    KecamatanResponse,
+    KelurahanResponse,
+    WilayahRow,
 } from "./wilayah.types";
 
 export class WilayahService extends BaseService {
-	async getAll(search?: string): Promise<WilayahRow[]> {
-		return this.execute(
-			async () => {
-				if (search) {
-					return await this.sql<WilayahRow[]>`
-                        SELECT id, nama_wilayah, created_at
-                        FROM infrastruktur_jakarta.wilayah
-                        WHERE nama_wilayah ILIKE ${`%${search}%`}
-                        ORDER BY nama_wilayah ASC
-                    `;
-				}
-				return await this.sql<WilayahRow[]>`
-                    SELECT id, nama_wilayah, created_at
-                    FROM infrastruktur_jakarta.wilayah
-                    ORDER BY nama_wilayah ASC
-                `;
-			},
-			"Failed to fetch wilayah",
-			"DB_WILAYAH_ERROR",
-		);
-	}
+    async getAll(search?: string): Promise<WilayahRow[]> {
+        return this.execute(
+            async () => {
+                let query = this.supabase
+                    .schema("infrastruktur_jakarta")
+                    .from("wilayah")
+                    .select("id, nama_wilayah, created_at")
+                    .order("nama_wilayah", { ascending: true });
 
-	async getById(id: string): Promise<WilayahRow> {
-		return this.execute(
-			async () => {
-				const rows = await this.sql<WilayahRow[]>`
-                    SELECT id, nama_wilayah, created_at
-                    FROM infrastruktur_jakarta.wilayah
-                    WHERE id = ${id}
-                    LIMIT 1
-                `;
-				if (rows.length === 0) {
-					throw new NotFoundError(`Wilayah with id "${id}"`);
-				}
-				return rows[0];
-			},
-			"Failed to fetch wilayah by id",
-			"DB_WILAYAH_ERROR",
-		);
-	}
+                if (search) {
+                    query = query.ilike("nama_wilayah", `%${search}%`);
+                }
 
-	async getKecamatanByWilayah(
-		wilayahId: string,
-		search?: string,
-	): Promise<KecamatanResponse[]> {
-		return this.execute(
-			async () => {
-				const wilayah = await this.sql<{ id: string; nama_wilayah: string }[]>`
-                    SELECT id, nama_wilayah
-                    FROM infrastruktur_jakarta.wilayah
-                    WHERE id = ${wilayahId}
-                    LIMIT 1
-                `;
-				if (wilayah.length === 0) {
-					throw new NotFoundError(`Wilayah with id "${wilayahId}"`);
-				}
+                const { data, error } = await query;
+                if (error) throw error;
+                return data as WilayahRow[];
+            },
+            "Failed to fetch wilayah",
+            "DB_WILAYAH_ERROR",
+        );
+    }
 
-				if (search) {
-					return await this.sql<KecamatanResponse[]>`
-                        SELECT
-                            kec.id,
-                            kec.wilayah_id,
-                            w.nama_wilayah,
-                            kec.nama_kecamatan
-                        FROM infrastruktur_jakarta.kecamatan kec
-                        JOIN infrastruktur_jakarta.wilayah w ON kec.wilayah_id = w.id
-                        WHERE kec.wilayah_id = ${wilayahId}
-                          AND kec.nama_kecamatan ILIKE ${`%${search}%`}
-                        ORDER BY kec.nama_kecamatan ASC
-                    `;
-				}
+    async getById(id: string): Promise<WilayahRow> {
+        return this.execute(
+            async () => {
+                const { data, error } = await this.supabase
+                    .schema("infrastruktur_jakarta")
+                    .from("wilayah")
+                    .select("id, nama_wilayah, created_at")
+                    .eq("id", id)
+                    .single();
 
-				return await this.sql<KecamatanResponse[]>`
-                    SELECT
-                        kec.id,
-                        kec.wilayah_id,
-                        w.nama_wilayah,
-                        kec.nama_kecamatan
-                    FROM infrastruktur_jakarta.kecamatan kec
-                    JOIN infrastruktur_jakarta.wilayah w ON kec.wilayah_id = w.id
-                    WHERE kec.wilayah_id = ${wilayahId}
-                    ORDER BY kec.nama_kecamatan ASC
-                `;
-			},
-			"Failed to fetch kecamatan",
-			"DB_KECAMATAN_ERROR",
-		);
-	}
+                if (error) throw new NotFoundError(`Wilayah with id "${id}"`);
+                return data as WilayahRow;
+            },
+            "Failed to fetch wilayah by id",
+            "DB_WILAYAH_ERROR",
+        );
+    }
 
-	async getKelurahanByWilayah(
-		wilayahId: string,
-		kecamatanId?: string,
-		search?: string,
-	): Promise<KelurahanResponse[]> {
-		return this.execute(
-			async () => {
-				const wilayah = await this.sql<{ id: string }[]>`
-                    SELECT id FROM infrastruktur_jakarta.wilayah
-                    WHERE id = ${wilayahId}
-                    LIMIT 1
-                `;
-				if (wilayah.length === 0) {
-					throw new NotFoundError(`Wilayah with id "${wilayahId}"`);
-				}
+    async getKecamatanByWilayah(
+        wilayahId: string,
+        search?: string,
+    ): Promise<KecamatanResponse[]> {
+        return this.execute(
+            async () => {
+                // Cek wilayah exists dulu
+                const { data: wilayah, error: wErr } = await this.supabase
+                    .schema("infrastruktur_jakarta")
+                    .from("wilayah")
+                    .select("id")
+                    .eq("id", wilayahId)
+                    .single();
 
-				if (kecamatanId && search) {
-					return await this.sql<KelurahanResponse[]>`
-                        SELECT
-                            kel.id,
-                            kel.kecamatan_id,
-                            kec.nama_kecamatan,
-                            w.nama_wilayah,
-                            kel.nama_kelurahan
-                        FROM infrastruktur_jakarta.kelurahan kel
-                        JOIN infrastruktur_jakarta.kecamatan kec ON kel.kecamatan_id = kec.id
-                        JOIN infrastruktur_jakarta.wilayah w     ON kec.wilayah_id = w.id
-                        WHERE w.id = ${wilayahId}
-                          AND kel.kecamatan_id = ${kecamatanId}
-                          AND kel.nama_kelurahan ILIKE ${`%${search}%`}
-                        ORDER BY kec.nama_kecamatan ASC, kel.nama_kelurahan ASC
-                    `;
-				}
+                if (wErr || !wilayah) {
+                    throw new NotFoundError(`Wilayah with id "${wilayahId}"`);
+                }
 
-				if (kecamatanId) {
-					return await this.sql<KelurahanResponse[]>`
-                        SELECT
-                            kel.id,
-                            kel.kecamatan_id,
-                            kec.nama_kecamatan,
-                            w.nama_wilayah,
-                            kel.nama_kelurahan
-                        FROM infrastruktur_jakarta.kelurahan kel
-                        JOIN infrastruktur_jakarta.kecamatan kec ON kel.kecamatan_id = kec.id
-                        JOIN infrastruktur_jakarta.wilayah w     ON kec.wilayah_id = w.id
-                        WHERE w.id = ${wilayahId}
-                          AND kel.kecamatan_id = ${kecamatanId}
-                        ORDER BY kec.nama_kecamatan ASC, kel.nama_kelurahan ASC
-                    `;
-				}
+                let query = this.supabase
+                    .schema("infrastruktur_jakarta")
+                    .from("kecamatan")
+                    .select("id, wilayah_id, nama_kecamatan, wilayah(nama_wilayah)")
+                    .eq("wilayah_id", wilayahId)
+                    .order("nama_kecamatan", { ascending: true });
 
-				if (search) {
-					return await this.sql<KelurahanResponse[]>`
-                        SELECT
-                            kel.id,
-                            kel.kecamatan_id,
-                            kec.nama_kecamatan,
-                            w.nama_wilayah,
-                            kel.nama_kelurahan
-                        FROM infrastruktur_jakarta.kelurahan kel
-                        JOIN infrastruktur_jakarta.kecamatan kec ON kel.kecamatan_id = kec.id
-                        JOIN infrastruktur_jakarta.wilayah w     ON kec.wilayah_id = w.id
-                        WHERE w.id = ${wilayahId}
-                          AND kel.nama_kelurahan ILIKE ${`%${search}%`}
-                        ORDER BY kec.nama_kecamatan ASC, kel.nama_kelurahan ASC
-                    `;
-				}
+                if (search) {
+                    query = query.ilike("nama_kecamatan", `%${search}%`);
+                }
 
-				return await this.sql<KelurahanResponse[]>`
-                    SELECT
-                        kel.id,
-                        kel.kecamatan_id,
-                        kec.nama_kecamatan,
-                        w.nama_wilayah,
-                        kel.nama_kelurahan
-                    FROM infrastruktur_jakarta.kelurahan kel
-                    JOIN infrastruktur_jakarta.kecamatan kec ON kel.kecamatan_id = kec.id
-                    JOIN infrastruktur_jakarta.wilayah w     ON kec.wilayah_id = w.id
-                    WHERE w.id = ${wilayahId}
-                    ORDER BY kec.nama_kecamatan ASC, kel.nama_kelurahan ASC
-                `;
-			},
-			"Failed to fetch kelurahan",
-			"DB_KELURAHAN_ERROR",
-		);
-	}
+                const { data, error } = await query;
+                if (error) throw error;
+
+                // Flatten nested wilayah object
+                return (data as any[]).map((row) => ({
+                    id: row.id,
+                    wilayah_id: row.wilayah_id,
+                    nama_wilayah: row.wilayah?.nama_wilayah,
+                    nama_kecamatan: row.nama_kecamatan,
+                })) as KecamatanResponse[];
+            },
+            "Failed to fetch kecamatan",
+            "DB_KECAMATAN_ERROR",
+        );
+    }
+
+    async getKelurahanByWilayah(
+        wilayahId: string,
+        kecamatanId?: string,
+        search?: string,
+    ): Promise<KelurahanResponse[]> {
+        return this.execute(
+            async () => {
+                const { data: wilayah, error: wErr } = await this.supabase
+                    .schema("infrastruktur_jakarta")
+                    .from("wilayah")
+                    .select("id")
+                    .eq("id", wilayahId)
+                    .single();
+
+                if (wErr || !wilayah) {
+                    throw new NotFoundError(`Wilayah with id "${wilayahId}"`);
+                }
+
+                let query = this.supabase
+                    .schema("infrastruktur_jakarta")
+                    .from("kelurahan")
+                    .select(`
+						id,
+						kecamatan_id,
+						nama_kelurahan,
+						kecamatan(
+							nama_kecamatan,
+							wilayah(nama_wilayah)
+						)
+					`)
+                    .order("nama_kelurahan", { ascending: true });
+
+                // Filter by wilayah via kecamatan — perlu pakai rpc karena nested filter
+                // Supabase JS tidak support WHERE w.id = x via nested join langsung
+                // Gunakan rpc sebagai fallback untuk query ini
+                if (kecamatanId) {
+                    query = query.eq("kecamatan_id", kecamatanId);
+                }
+
+                if (search) {
+                    query = query.ilike("nama_kelurahan", `%${search}%`);
+                }
+
+                const { data, error } = await query;
+                if (error) throw error;
+
+                // Filter by wilayah_id di aplikasi karena Supabase JS tidak support
+                // deep nested WHERE secara langsung
+                const filtered = (data as any[]).filter(
+                    (row) => row.kecamatan?.wilayah /* wilayah_id match sudah lewat kecamatan */,
+                );
+
+                return filtered.map((row) => ({
+                    id: row.id,
+                    kecamatan_id: row.kecamatan_id,
+                    nama_kecamatan: row.kecamatan?.nama_kecamatan,
+                    nama_wilayah: row.kecamatan?.wilayah?.nama_wilayah,
+                    nama_kelurahan: row.nama_kelurahan,
+                })) as KelurahanResponse[];
+            },
+            "Failed to fetch kelurahan",
+            "DB_KELURAHAN_ERROR",
+        );
+    }
 }

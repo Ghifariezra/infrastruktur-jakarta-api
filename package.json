@@ -21,7 +21,6 @@
 		"dotenv": "^17.4.2",
 		"hono": "^4.12.18",
 		"hono-rate-limiter": "^0.5.3",
-		"postgres": "^3.4.9",
 		"zod": "^4.4.3",
 		"zod-validation-error": "^5.0.0"
 	},
