@@ -5,7 +5,7 @@ export class AppError extends Error {
 		public readonly message: string,
 		public readonly statusCode: ContentfulStatusCode,
 		public readonly code: string,
-		public readonly details?: unknown, 
+		public readonly details?: unknown,
 	) {
 		super(message);
 		this.name = this.constructor.name;

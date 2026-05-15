@@ -1,21 +1,30 @@
+import { BaseController } from "@core/base.controller";
 import { ValidationError } from "@core/error";
-import { BaseSingleton } from "@core/singleton";
+// import { BaseSingleton } from "@core/singleton";
 import { sendSuccess } from "@shared/response";
 import type { Context } from "hono";
-
 import { AuthService } from "./auth.service";
 import { createApiKeySchema, revokeApiKeySchema } from "./auth.validation";
 
-export class AuthController extends BaseSingleton {
-	private authService: AuthService;
+export class AuthController extends BaseController {
+	// private authService: AuthService;
 
-	protected constructor() {
-		super();
-		this.authService = AuthService.getInstance<AuthService>();
+	// protected constructor() {
+	// 	super();
+	// 	this.authService = AuthService.getInstance<AuthService>();
+	// }
+
+	private authService = AuthService.getInstance<AuthService>();
+
+	protected get services() {
+		return [this.authService];
 	}
 
-	public generateKey = async (c: Context) => {
-		return this.execute(
+	public generateKey = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				// Parsing body request (karena ini method POST)
 				const body = await c.req.json().catch(() => ({}));
@@ -41,8 +50,11 @@ export class AuthController extends BaseSingleton {
 		);
 	};
 
-	public revokeKey = async (c: Context) => {
-		return this.execute(
+	public revokeKey = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const body = await c.req.json().catch(() => ({}));
 				const parsed = revokeApiKeySchema.safeParse(body);

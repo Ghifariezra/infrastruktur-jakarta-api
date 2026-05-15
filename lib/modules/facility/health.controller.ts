@@ -1,5 +1,6 @@
+import { BaseController } from "@core/base.controller";
 import { ValidationError } from "@core/error";
-import { BaseSingleton } from "@core/singleton";
+// import { BaseSingleton } from "@core/singleton";
 import { HealthFacilityService } from "@modules/facility/health.service";
 import {
 	getBBoxFacilitiesSchema,
@@ -9,17 +10,27 @@ import {
 import { sendSuccess } from "@shared/response";
 import type { Context } from "hono";
 
-export class HealthFacilityController extends BaseSingleton {
-	private facilityService: HealthFacilityService;
+export class HealthFacilityController extends BaseController {
+	// private facilityService: HealthFacilityService;
 
-	protected constructor() {
-		super();
-		this.facilityService =
-			HealthFacilityService.getInstance<HealthFacilityService>();
+	// protected constructor() {
+	// 	super();
+	// 	this.facilityService =
+	// 		HealthFacilityService.getInstance<HealthFacilityService>();
+	// }
+
+	private facilityService =
+		HealthFacilityService.getInstance<HealthFacilityService>();
+
+	protected get services() {
+		return [this.facilityService];
 	}
 
-	public getAllHealthFacilities = async (c: Context) => {
-		return this.execute(
+	public getAllHealthFacilities = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const developer = c.get("developer") as {
 					tier: string;
@@ -59,8 +70,11 @@ export class HealthFacilityController extends BaseSingleton {
 		);
 	};
 
-	public getNearbyHealthFacilities = async (c: Context) => {
-		return this.execute(
+	public getNearbyHealthFacilities = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const developer = c.get("developer") as { tier: string };
 
@@ -93,8 +107,11 @@ export class HealthFacilityController extends BaseSingleton {
 		);
 	};
 
-	public getFacilitiesInBBox = async (c: Context) => {
-		return this.execute(
+	public getFacilitiesInBBox = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const developer = c.get("developer") as { tier: string };
 

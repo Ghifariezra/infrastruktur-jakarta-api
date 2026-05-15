@@ -9,13 +9,12 @@
 // 	protected readonly logger = logger;
 // }
 
-
 // Fix: hapus import 'sql' karena sudah tidak di-export (diganti getSql)
 // Fix: hapus 'const sql = await getSql(c.env)' — c tidak tersedia di sini
 import { getSql, getSupabase } from "@config/supabase";
-import type { Sql } from "postgres";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { logger } from "@shared/logger";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Sql } from "postgres";
 import { BaseSingleton } from "./singleton";
 
 export abstract class BaseService extends BaseSingleton {

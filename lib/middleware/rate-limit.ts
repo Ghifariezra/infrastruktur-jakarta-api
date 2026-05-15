@@ -16,7 +16,7 @@
 // 		if (authHeader?.startsWith("Bearer ")) {
 // 			return authHeader.split(" ")[1];
 // 		}
-		
+
 // 		return getRealIp(c);
 // 	},
 
@@ -29,18 +29,20 @@
 // 	},
 // });
 
-
 // import { env } from "@config/env";
 // Fix: rateLimiter tidak bisa di-init di top-level karena env belum tersedia.
 // Gunakan factory function yang dipanggil di dalam handler.
 import { sendError } from "@shared/response";
 import { getRealIp } from "@utils/ip-handlers";
-import { rateLimiter } from "hono-rate-limiter";
 import type { MiddlewareHandler } from "hono";
+import { rateLimiter } from "hono-rate-limiter";
 
 // Fix: hono-rate-limiter punya generic Env-nya sendiri yang berbeda dari Hono<{ Bindings: Env }>.
 // Cast c ke 'any' saat diteruskan ke rateLimiter untuk menghindari type conflict.
-export const rateLimitMiddleware: MiddlewareHandler<{ Bindings: Env }> = (c, next) => {
+export const rateLimitMiddleware: MiddlewareHandler<{ Bindings: Env }> = (
+	c,
+	next,
+) => {
 	return rateLimiter({
 		windowMs: c.env.RATE_LIMIT_WINDOW_MS,
 		limit: c.env.RATE_LIMIT_MAX,

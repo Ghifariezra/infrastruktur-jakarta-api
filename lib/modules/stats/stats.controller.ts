@@ -1,8 +1,7 @@
+import { BaseController } from "@core/base.controller";
 import { ValidationError } from "@core/error";
-import { BaseSingleton } from "@core/singleton";
 import { sendSuccess } from "@shared/response";
 import type { Context } from "hono";
-
 import { StatsService } from "./stats.service";
 import {
 	statsBlankSpotSchema,
@@ -11,16 +10,26 @@ import {
 	statsWilayahSchema,
 } from "./stats.validation";
 
-export class StatsController extends BaseSingleton {
-	private statsService: StatsService;
+export class StatsController extends BaseController {
+	// private statsService: StatsService;
 
-	protected constructor() {
-		super();
-		this.statsService = StatsService.getInstance<StatsService>();
+	// protected constructor() {
+	// 	super();
+	// 	this.statsService = StatsService.getInstance<StatsService>();
+	// }
+
+	private statsService = StatsService.getInstance<StatsService>();
+
+	// Daftarkan semua service — BaseController akan auto-init sebelum handler
+	protected get services() {
+		return [this.statsService];
 	}
 
-	public getSummary = async (c: Context) => {
-		return this.execute(
+	public getSummary = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const data = await this.statsService.getSummary();
 				return sendSuccess(c, data, "Summary retrieved successfully");
@@ -30,8 +39,11 @@ export class StatsController extends BaseSingleton {
 		);
 	};
 
-	public getStatsWilayah = async (c: Context) => {
-		return this.execute(
+	public getStatsWilayah = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const parsed = statsWilayahSchema.safeParse(c.req.query());
 				if (!parsed.success) {
@@ -48,8 +60,11 @@ export class StatsController extends BaseSingleton {
 		);
 	};
 
-	public getStatsJenis = async (c: Context) => {
-		return this.execute(
+	public getStatsJenis = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const data = await this.statsService.getStatsPerJenis();
 				return sendSuccess(c, data, "Stats per jenis retrieved successfully");
@@ -59,8 +74,11 @@ export class StatsController extends BaseSingleton {
 		);
 	};
 
-	public getStatsKecamatan = async (c: Context) => {
-		return this.execute(
+	public getStatsKecamatan = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const parsed = statsKecamatanSchema.safeParse(c.req.query());
 				if (!parsed.success) {
@@ -81,8 +99,11 @@ export class StatsController extends BaseSingleton {
 		);
 	};
 
-	public getDensity = async (c: Context) => {
-		return this.execute(
+	public getDensity = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const parsed = statsDensitySchema.safeParse(c.req.query());
 				if (!parsed.success) {
@@ -99,8 +120,11 @@ export class StatsController extends BaseSingleton {
 		);
 	};
 
-	public getBlankSpot = async (c: Context) => {
-		return this.execute(
+	public getBlankSpot = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const parsed = statsBlankSpotSchema.safeParse(c.req.query());
 				if (!parsed.success) {

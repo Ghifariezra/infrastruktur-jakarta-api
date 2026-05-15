@@ -1,8 +1,8 @@
+import { BaseController } from "@core/base.controller";
 import { ValidationError } from "@core/error";
-import { BaseSingleton } from "@core/singleton";
+// import { BaseSingleton } from "@core/singleton";
 import { sendSuccess } from "@shared/response";
 import type { Context } from "hono";
-
 import { WilayahService } from "./wilayah.service";
 import {
 	getKecamatanByWilayahSchema,
@@ -11,16 +11,26 @@ import {
 	getWilayahSchema,
 } from "./wilayah.validation";
 
-export class WilayahController extends BaseSingleton {
-	private wilayahService: WilayahService;
+export class WilayahController extends BaseController {
+	// private wilayahService: WilayahService;
 
-	protected constructor() {
-		super();
-		this.wilayahService = WilayahService.getInstance<WilayahService>();
+	// protected constructor() {
+	// 	super();
+	// 	this.wilayahService = WilayahService.getInstance<WilayahService>();
+	// }
+
+	private wilayahService = WilayahService.getInstance<WilayahService>();
+
+	// Daftarkan semua service — BaseController akan auto-init sebelum handler
+	protected get services() {
+		return [this.wilayahService];
 	}
 
-	public getAll = async (c: Context) => {
-		return this.execute(
+	public getAll = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const parsed = getWilayahSchema.safeParse(c.req.query());
 				if (!parsed.success) {
@@ -38,8 +48,11 @@ export class WilayahController extends BaseSingleton {
 		);
 	};
 
-	public getById = async (c: Context) => {
-		return this.execute(
+	public getById = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const parsed = getWilayahByIdSchema.safeParse({
 					id: c.req.param("id"),
@@ -59,8 +72,11 @@ export class WilayahController extends BaseSingleton {
 		);
 	};
 
-	public getKecamatan = async (c: Context) => {
-		return this.execute(
+	public getKecamatan = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const parsed = getKecamatanByWilayahSchema.safeParse({
 					id: c.req.param("id"),
@@ -84,8 +100,11 @@ export class WilayahController extends BaseSingleton {
 		);
 	};
 
-	public getKelurahan = async (c: Context) => {
-		return this.execute(
+	public getKelurahan = async (
+		c: Context<{ Bindings: Env; Variables: HonoVariables }>,
+	) => {
+		return this.handle(
+			c,
 			async () => {
 				const parsed = getKelurahanByWilayahSchema.safeParse({
 					id: c.req.param("id"),

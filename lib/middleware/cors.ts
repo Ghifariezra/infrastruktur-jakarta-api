@@ -1,4 +1,4 @@
-import { cors } from "hono/cors"
+import { cors } from "hono/cors";
 
 export const corsMiddleware = cors({
 	origin: "*",
@@ -6,4 +6,4 @@ export const corsMiddleware = cors({
 	allowHeaders: ["Content-Type", "Authorization", "x-api-key"],
 	exposeHeaders: ["Content-Length"],
 	maxAge: 86400,
-})
+});

@@ -38,7 +38,6 @@ export interface InfrastrukturRow {
 	updated_at: string;
 }
 
-
 export interface WilayahResponse {
 	id: string;
 	nama_wilayah: string;
