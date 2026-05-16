@@ -32,6 +32,11 @@ app.use("*", async (c, next) => {
 // Global Middlewares (Aman untuk semua endpoint)
 app.use("*", requestLogger);
 app.use("*", secureHeaders());
+app.use("*", async (c, next) => {
+	await next();
+	c.header("X-Data-Source", "JakInfra by Ghifariezra");
+	c.header("X-Data-License", "CC BY 4.0");
+});
 app.use("*", corsMiddleware);
 app.use("*", rateLimitMiddleware);
 app.use("*", prettyJSON({ space: 4, force: true }));

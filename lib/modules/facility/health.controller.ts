@@ -40,6 +40,7 @@ export class HealthFacilityController extends BaseController {
 
 				let { limit, offset } = parsed.data;
 
+				// NOTE: Dipikirkan untuk membatasi jumlah data yang bisa diambil oleh public tier untuk mencegah abuse, tapi admin tetap bisa mengambil semua data sekaligus jika mau.
 				if (developer?.tier !== "admin") {
 					if (limit > 100) {
 						limit = 100;
