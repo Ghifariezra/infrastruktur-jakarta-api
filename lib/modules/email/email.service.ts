@@ -1,42 +1,42 @@
-import { env } from "@config/env";
 import { BaseSingleton } from "@core/singleton";
 import { logger } from "@shared/logger";
 import { Resend } from "resend";
 import type { EmailResult, SendApiKeyEmailPayload } from "./email.types";
 
 export class EmailService extends BaseSingleton {
-    private readonly resend = new Resend(env.RESEND_API_KEY);
-    private readonly from = env.EMAIL_FROM;
-    protected readonly logger = logger;
+  protected readonly logger = logger;
 
-    // ─── Send API Key Email ─────────────────────────────────────────────────
+  // ─── Send API Key Email ─────────────────────────────────────────────────
 
-    async sendApiKeyEmail(payload: SendApiKeyEmailPayload): Promise<EmailResult> {
-        const { to, developer_name, project_name, api_key, expires_in_days } = payload;
+  async sendApiKeyEmail(payload: SendApiKeyEmailPayload, envConfig: { resendKey: string, fromEmail: string }): Promise<EmailResult> {
+    // Instantiate Resend INSIDE the method
+    const resend = new Resend(envConfig.resendKey);
 
-        const { data, error } = await this.resend.emails.send({
-            from: `JakInfra <${this.from}>`,
-            to,
-            subject: `🔑 API Key JakInfra — ${project_name}`,
-            html: buildApiKeyEmailHtml({ developer_name, project_name, api_key, expires_in_days }),
-            text: buildApiKeyEmailText({ developer_name, project_name, api_key, expires_in_days }),
-        });
+    const { to, developer_name, project_name, api_key, expires_in_days } = payload;
 
-        if (error || !data) {
-            this.logger.error(
-                "[EmailService] Failed to send API key email",
-                { error, to, project_name },   // ← context jadi arg ke-2
-            );
-            throw new Error(`Failed to send email: ${error?.message ?? "Unknown error"}`);
-        }
+    const { data, error } = await resend.emails.send({
+      from: `JakInfra <${envConfig.fromEmail}>`,
+      to,
+      subject: `🔑 API Key JakInfra — ${project_name}`,
+      html: buildApiKeyEmailHtml({ developer_name, project_name, api_key, expires_in_days }),
+      text: buildApiKeyEmailText({ developer_name, project_name, api_key, expires_in_days }),
+    });
 
-        this.logger.info(
-            "[EmailService] API key email sent",
-            { message_id: data.id, to, project_name },   // ← context jadi arg ke-2
-        );
-
-        return { message_id: data.id };
+    if (error || !data) {
+      this.logger.error(
+        "[EmailService] Failed to send API key email",
+        { error, to, project_name },
+      );
+      throw new Error(`Failed to send email: ${error?.message ?? "Unknown error"}`);
     }
+
+    this.logger.info(
+      "[EmailService] API key email sent",
+      { message_id: data.id, to, project_name },
+    );
+
+    return { message_id: data.id };
+  }
 }
 
 // ─── Email Templates ──────────────────────────────────────────────────────────
