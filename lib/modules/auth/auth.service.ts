@@ -13,7 +13,10 @@ export class AuthService extends BaseService {
 	// ─── Create API Key ─────────────────────────────────────────────────────
 
 	async createApiKey(payload: CreateApiKeyRequest): Promise<ApiKeyResponse> {
-		// 1. Generate API Key di Database
+		if (!this.envConfig?.RESEND_API_KEY || !this.envConfig?.EMAIL_FROM) {
+			throw new Error("Server configuration missing: Cannot send email.");
+		}
+
 		const result = await this.execute(
 			async () => {
 				const { data, error } = await this.supabase
@@ -34,7 +37,6 @@ export class AuthService extends BaseService {
 			"DB_AUTH_CREATE_ERROR",
 		);
 
-		// 2. STRICT MODE: Tunggu pengiriman email selesai sebelum membalas user
 		try {
 			await this.emailService.sendApiKeyEmail({
 				to: payload.email,
@@ -42,6 +44,9 @@ export class AuthService extends BaseService {
 				project_name: payload.project_name,
 				api_key: result.api_key,
 				expires_in_days: payload.lifespan_days,
+			}, {
+				resendKey: this.envConfig.RESEND_API_KEY,
+				fromEmail: this.envConfig.EMAIL_FROM
 			});
 		} catch (err) {
 			this.logger.error(
@@ -49,8 +54,6 @@ export class AuthService extends BaseService {
 				{ err, email: payload.email },
 			);
 
-			// 3. ROLLBACK: Jika email gagal, cabut kembali (revoke) key yang baru dibuat di DB
-			// Asumsi `result` memiliki properti `id` dari database. Sesuaikan jika namanya berbeda (misal: result.key_id)
 			if (result.id) {
 				await this.revokeApiKey(result.id).catch((revokeErr) => {
 					this.logger.error(
@@ -60,11 +63,9 @@ export class AuthService extends BaseService {
 				});
 			}
 
-			// 4. Lemparkan error ke Controller agar diteruskan ke User (Frontend)
 			throw new Error("Gagal mengirim email API Key. Silakan periksa kembali alamat email Anda atau coba beberapa saat lagi.");
 		}
 
-		// 5. Jika DB sukses & Email sukses, kembalikan hasil ke user
 		return result;
 	}
 

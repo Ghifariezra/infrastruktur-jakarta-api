@@ -6,8 +6,10 @@ import { BaseSingleton } from "./singleton";
 export abstract class BaseService extends BaseSingleton {
 	protected supabase: SupabaseClient = getSupabase();
 	protected readonly logger = logger;
+	protected envConfig?: Env;
 
 	init(env?: Env): void {
 		this.supabase = getSupabase(env);
+		this.envConfig = env;
 	}
 }
