@@ -5,6 +5,8 @@ declare interface Env {
 	NODE_ENV?: string;
 	RATE_LIMIT_WINDOW_MS: string;
 	RATE_LIMIT_MAX: string;
+	RESEND_API_KEY: string;
+	EMAIL_FROM: string;
 }
 
 declare interface HonoVariables {
