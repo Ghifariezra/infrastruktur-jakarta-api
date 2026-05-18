@@ -4,7 +4,7 @@ import { ValidationError } from "@core/error";
 import { sendSuccess } from "@shared/response";
 import type { Context } from "hono";
 import { AuthService } from "./auth.service";
-import { createApiKeySchema, revokeApiKeySchema } from "./auth.validation";
+import { checkedCreateApiKeySchema, createApiKeySchema, revokeApiKeySchema } from "./auth.validation";
 
 export class AuthController extends BaseController {
 	private authService = AuthService.getInstance<AuthService>();
@@ -21,7 +21,23 @@ export class AuthController extends BaseController {
 			async () => {
 				// Parsing body request (karena ini method POST)
 				const body = await c.req.json().catch(() => ({}));
-				const parsed = createApiKeySchema.safeParse(body);
+
+				const checked = checkedCreateApiKeySchema.safeParse(body);
+				if (!checked.success) {
+					throw new ValidationError(
+						"Missing required fields",
+						checked.error.flatten().fieldErrors,
+					);
+				}
+				
+				const tier = body.tier ?? "free";
+				const lifespan_days = body.lifespan_days ?? 30;
+
+				const parsed = createApiKeySchema.safeParse({
+					...checked.data,
+					tier,
+					lifespan_days,
+				});
 
 				if (!parsed.success) {
 					throw new ValidationError(

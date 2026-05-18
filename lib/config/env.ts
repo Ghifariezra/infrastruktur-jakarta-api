@@ -10,6 +10,8 @@ const envSchema = z.object({
 	SUPABASE_SERVICE_KEY: z.string().min(1),
 	RATE_LIMIT_MAX: z.coerce.number().default(100),
 	RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60_000),
+	RESEND_API_KEY: z.string().min(1), 
+	EMAIL_FROM: z.string().email(),
 });
 
 const parsed = envSchema.safeParse(process.env);

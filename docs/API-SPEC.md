@@ -21,12 +21,14 @@ Semua endpoint dilayani di bawah *Base URL*:
 Mengelola kunci API (API Keys).
 
 ### `POST /auth/keys`
-Membuat kredensial API Key baru.
+Membuat kredensial API Key baru dan mengirimkannya via Email menggunakan layanan Resend.
 - **Body (JSON):**
   - `developer_name` (String, max: 255) **[Required]** - Nama Anda atau pengembang.
   - `project_name` (String, max: 255) **[Required]** - Nama proyek yang menggunakan API ini.
+  - `email` (String, format email) **[Required]** - Alamat email tujuan untuk mengirimkan API Key.
+  - `use_case` (String, min: 20, max: 1000) **[Required]** - Penjelasan singkat mengenai tujuan penggunaan API (contoh: "Untuk integrasi pada dashboard website peta saya...").
   - `tier` (Enum: `free` | `pro` | `enterprise`, default: `free`) - Tingkat akses.
-  - `lifespan_days` (Number, default: `null`) - Lama berlakunya token sebelum kedaluwarsa.
+  - `lifespan_days` (Number, default: `30`) - Lama berlakunya token sebelum kedaluwarsa.
 - **Example Response:**
 ```json
 {

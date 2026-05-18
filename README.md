@@ -5,7 +5,8 @@ API untuk mengelola dan menyajikan data infrastruktur (khususnya fasilitas keseh
 ## 🚀 Tech Stack
 
 - **Framework**: [Hono](https://hono.dev/) (cepat, ringan, dan berjalan lancar di berbagai runtime Node.js/Edge).
-- **Database / BaaS**: [Supabase](https://supabase.com/) & [Postgres](https://github.com/porsager/postgres)
+- **Database / BaaS**: [Supabase](https://supabase.com/) & [Postgres](https://github.com/porsager/postgres) (Native PostgREST & RPC)
+- **Email Service**: [Resend](https://resend.com/) (Transaksional email pengiriman API Key)
 - **Validation**: [Zod](https://zod.dev/) (untuk payload dan query validation)
 - **Linter & Formatter**: [Biome](https://biomejs.dev/)
 - **Language**: TypeScript

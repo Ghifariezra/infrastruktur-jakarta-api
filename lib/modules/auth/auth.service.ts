@@ -1,5 +1,6 @@
 import { BaseService } from "@core/base.service";
 import { UnauthorizedError } from "@core/error";
+import { EmailService } from "@modules/email/email.service";
 import type {
 	ApiKeyResponse,
 	CreateApiKeyRequest,
@@ -7,14 +8,21 @@ import type {
 } from "./auth.types";
 
 export class AuthService extends BaseService {
+	private readonly emailService = EmailService.getInstance<EmailService>();
+
+	// ─── Create API Key ─────────────────────────────────────────────────────
+
 	async createApiKey(payload: CreateApiKeyRequest): Promise<ApiKeyResponse> {
-		return this.execute(
+		// 1. Generate API Key di Database
+		const result = await this.execute(
 			async () => {
 				const { data, error } = await this.supabase
 					.schema("infrastruktur_jakarta")
 					.rpc("create_api_key", {
 						p_dev_name: payload.developer_name,
 						p_project_name: payload.project_name,
+						p_email: payload.email,
+						p_use_case: payload.use_case,
 						p_tier: payload.tier ?? "free",
 						p_lifespan_days: payload.lifespan_days ?? null,
 					});
@@ -25,7 +33,42 @@ export class AuthService extends BaseService {
 			"Failed to generate API Key",
 			"DB_AUTH_CREATE_ERROR",
 		);
+
+		// 2. STRICT MODE: Tunggu pengiriman email selesai sebelum membalas user
+		try {
+			await this.emailService.sendApiKeyEmail({
+				to: payload.email,
+				developer_name: payload.developer_name,
+				project_name: payload.project_name,
+				api_key: result.api_key,
+				expires_in_days: payload.lifespan_days,
+			});
+		} catch (err) {
+			this.logger.error(
+				"[AuthService] Email delivery failed, rolling back API key creation",
+				{ err, email: payload.email },
+			);
+
+			// 3. ROLLBACK: Jika email gagal, cabut kembali (revoke) key yang baru dibuat di DB
+			// Asumsi `result` memiliki properti `id` dari database. Sesuaikan jika namanya berbeda (misal: result.key_id)
+			if (result.id) {
+				await this.revokeApiKey(result.id).catch((revokeErr) => {
+					this.logger.error(
+						"[AuthService] CRITICAL: Failed to rollback API key after email error",
+						{ revokeErr, keyId: result.id },
+					);
+				});
+			}
+
+			// 4. Lemparkan error ke Controller agar diteruskan ke User (Frontend)
+			throw new Error("Gagal mengirim email API Key. Silakan periksa kembali alamat email Anda atau coba beberapa saat lagi.");
+		}
+
+		// 5. Jika DB sukses & Email sukses, kembalikan hasil ke user
+		return result;
 	}
+
+	// ─── Verify API Key ─────────────────────────────────────────────────────
 
 	async verifyApiKey(apiKey: string): Promise<VerifyKeyResponse> {
 		return this.execute(
@@ -46,6 +89,8 @@ export class AuthService extends BaseService {
 			"DB_AUTH_VERIFY_ERROR",
 		);
 	}
+
+	// ─── Revoke API Key ─────────────────────────────────────────────────────
 
 	async revokeApiKey(keyId: string): Promise<void> {
 		return this.execute(
